@@ -1,0 +1,9 @@
+
+-----------------------------------------------------------------
+  pg_upgrade run on Fri Aug 29 10:01:29 2025
+-----------------------------------------------------------------
+
+Performing Consistency Checks
+-----------------------------
+Checking cluster versions                                   ok
+The source cluster was not shut down cleanly.
