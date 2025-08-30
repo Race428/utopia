@@ -132,7 +132,7 @@ editor/src/components/editor/npm-dependency/utopia-api-typings.ts
 pglog.txt
 .pglock
 utopia-db
-.env
+*.env
 # Nix builds.
 server-build-result
 
