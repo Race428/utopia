@@ -24,8 +24,8 @@ async function handleGithubDebug(req: Request) {
         // Test the GitHub API with the stored token
         const response = await fetch('https://api.github.com/user', {
           headers: {
-            'Authorization': `Bearer ${githubAuth.access_token}`,
-            'Accept': 'application/vnd.github.v3+json',
+            Authorization: `Bearer ${githubAuth.access_token}`,
+            Accept: 'application/vnd.github.v3+json',
             'User-Agent': 'Utopia-App',
           },
         })
@@ -60,22 +60,26 @@ async function handleGithubDebug(req: Request) {
 
   const debugInfo = {
     timestamp: new Date().toISOString(),
-    user: user ? {
-      id: user.user_id,
-      email: user.email,
-      name: user.name,
-    } : null,
-    githubAuth: githubAuth ? {
-      hasAccessToken: !!githubAuth.access_token,
-      accessTokenLength: githubAuth.access_token?.length,
-      hasRefreshToken: !!githubAuth.refresh_token,
-      expiresAt: githubAuth.expires_at,
-    } : null,
+    user: user
+      ? {
+          id: user.user_id,
+          email: user.email,
+          name: user.name,
+        }
+      : null,
+    githubAuth: githubAuth
+      ? {
+          hasAccessToken: !!githubAuth.access_token,
+          accessTokenLength: githubAuth.access_token?.length,
+          hasRefreshToken: !!githubAuth.refresh_token,
+          expiresAt: githubAuth.expires_at,
+        }
+      : null,
     githubApiTest,
     database: {
       connected: true, // If we got here, DB is working
       url: process.env.DATABASE_URL ? 'SET' : 'NOT SET',
-    }
+    },
   }
 
   const html = `
@@ -172,26 +176,31 @@ async function handleGithubDebug(req: Request) {
 
           <h2>User Status</h2>
           <div class="status ${debugInfo.user ? 'ok' : 'error'}">
-            ${debugInfo.user ? `Logged in as: ${debugInfo.user.email} (${debugInfo.user.id})` : 'Not logged in'}
+            ${
+              debugInfo.user
+                ? `Logged in as: ${debugInfo.user.email} (${debugInfo.user.id})`
+                : 'Not logged in'
+            }
           </div>
 
           <h2>GitHub Authentication</h2>
           <div class="status ${debugInfo.githubAuth ? 'ok' : 'warning'}">
-            ${debugInfo.githubAuth ?
-      `GitHub connected - Token length: ${debugInfo.githubAuth.accessTokenLength} chars` :
-      'No GitHub authentication found'
-    }
+            ${
+              debugInfo.githubAuth
+                ? `GitHub connected - Token length: ${debugInfo.githubAuth.accessTokenLength} chars`
+                : 'No GitHub authentication found'
+            }
           </div>
 
           <h2>GitHub API Test</h2>
           <div class="status ${debugInfo.githubApiTest?.ok ? 'ok' : 'error'}">
-            ${debugInfo.githubApiTest ?
-      (debugInfo.githubApiTest.ok ?
-        `✅ API working - User: ${debugInfo.githubApiTest.userData?.login}` :
-        `❌ API failed: ${debugInfo.githubApiTest.status} ${debugInfo.githubApiTest.statusText}`
-      ) :
-      'No API test performed'
-    }
+            ${
+              debugInfo.githubApiTest
+                ? debugInfo.githubApiTest.ok
+                  ? `✅ API working - User: ${debugInfo.githubApiTest.userData?.login}`
+                  : `❌ API failed: ${debugInfo.githubApiTest.status} ${debugInfo.githubApiTest.statusText}`
+                : 'No API test performed'
+            }
           </div>
 
           <h2>Database Status</h2>

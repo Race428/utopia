@@ -71,7 +71,10 @@ async function handleFinish(req: Request) {
     console.error('GitHub authentication failed:', err)
 
     // Check if this is an authorization error (user not logged in)
-    if (err instanceof Error && (err.message.includes('unauthorized') || err.message.includes('missing session'))) {
+    if (
+      err instanceof Error &&
+      (err.message.includes('unauthorized') || err.message.includes('missing session'))
+    ) {
       return createAuthResponsePage({
         success: false,
         error: 'Please log into Utopia first, then try connecting to GitHub again.',
@@ -91,8 +94,16 @@ async function exchangeCodeForToken(code: string) {
   const tokenUrl = 'https://github.com/login/oauth/access_token'
 
   // Validate required environment variables
-  ensure(ServerEnvironment.GITHUB_OAUTH_CLIENT_ID, 'GitHub OAuth Client ID not configured', Status.INTERNAL_ERROR)
-  ensure(ServerEnvironment.GITHUB_OAUTH_CLIENT_SECRET, 'GitHub OAuth Client Secret not configured', Status.INTERNAL_ERROR)
+  ensure(
+    ServerEnvironment.GITHUB_OAUTH_CLIENT_ID,
+    'GitHub OAuth Client ID not configured',
+    Status.INTERNAL_ERROR,
+  )
+  ensure(
+    ServerEnvironment.GITHUB_OAUTH_CLIENT_SECRET,
+    'GitHub OAuth Client Secret not configured',
+    Status.INTERNAL_ERROR,
+  )
 
   const params = new URLSearchParams({
     client_id: ServerEnvironment.GITHUB_OAUTH_CLIENT_ID,
@@ -103,7 +114,7 @@ async function exchangeCodeForToken(code: string) {
   const response = await fetch(tokenUrl, {
     method: 'POST',
     headers: {
-      'Accept': 'application/json',
+      Accept: 'application/json',
       'Content-Type': 'application/x-www-form-urlencoded',
     },
     body: params.toString(),
@@ -111,16 +122,24 @@ async function exchangeCodeForToken(code: string) {
 
   if (!response.ok) {
     const errorText = await response.text()
-    throw new Error(`GitHub token exchange failed: ${response.status} ${response.statusText} - ${errorText}`)
+    throw new Error(
+      `GitHub token exchange failed: ${response.status} ${response.statusText} - ${errorText}`,
+    )
   }
 
   const tokenData = await response.json()
 
   if (tokenData.error) {
-    throw new Error(`GitHub OAuth error: ${tokenData.error} - ${tokenData.error_description || 'Unknown error'}`)
+    throw new Error(
+      `GitHub OAuth error: ${tokenData.error} - ${tokenData.error_description || 'Unknown error'}`,
+    )
   }
 
-  ensure(tokenData.access_token, `No access token received from GitHub. Response: ${JSON.stringify(tokenData)}`, Status.BAD_REQUEST)
+  ensure(
+    tokenData.access_token,
+    `No access token received from GitHub. Response: ${JSON.stringify(tokenData)}`,
+    Status.BAD_REQUEST,
+  )
 
   return tokenData
 }
@@ -128,8 +147,8 @@ async function exchangeCodeForToken(code: string) {
 async function getGitHubUser(accessToken: string) {
   const response = await fetch('https://api.github.com/user', {
     headers: {
-      'Authorization': `Bearer ${accessToken}`,
-      'Accept': 'application/vnd.github.v3+json',
+      Authorization: `Bearer ${accessToken}`,
+      Accept: 'application/vnd.github.v3+json',
       'User-Agent': 'Utopia-App',
     },
   })
@@ -165,7 +184,6 @@ async function storeGithubAuthentication(userId: string, tokenData: any, githubU
 
     // Backend storage failed, continue with direct storage
     await response.text() // consume the response
-
   } catch (error) {
     // Backend storage request failed, continue with direct storage
     void error // acknowledge the error
@@ -178,9 +196,7 @@ async function storeGithubAuthentication(userId: string, tokenData: any, githubU
 async function storeGithubAuthenticationDirect(userId: string, tokenData: any, githubUser: any) {
   // Store GitHub authentication directly in the database
   // Note: The current schema only supports access_token, refresh_token, expires_at
-  const expiresAt = tokenData.expires_in
-    ? new Date(Date.now() + tokenData.expires_in * 1000)
-    : null
+  const expiresAt = tokenData.expires_in ? new Date(Date.now() + tokenData.expires_in * 1000) : null
 
   await prisma.githubAuthentication.upsert({
     where: {
@@ -200,7 +216,13 @@ async function storeGithubAuthenticationDirect(userId: string, tokenData: any, g
   })
 }
 
-function createAuthResponsePage({ success, error, githubUser, showLoginLink, debug }: {
+function createAuthResponsePage({
+  success,
+  error,
+  githubUser,
+  showLoginLink,
+  debug,
+}: {
   success: boolean
   error?: string
   githubUser?: string
@@ -252,34 +274,48 @@ function createAuthResponsePage({ success, error, githubUser, showLoginLink, deb
       </head>
       <body>
         <div class="container">
-          ${success ? `
+          ${
+            success
+              ? `
             <div class="icon">✅</div>
             <div class="message success">Authentication Successful!</div>
             ${githubUser ? `<div class="detail">Connected as @${githubUser}</div>` : ''}
             <div class="detail">You can close this window now.</div>
-          ` : `
+          `
+              : `
             <div class="icon">❌</div>
             <div class="message error">Authentication Failed</div>
             <div class="detail">${error || 'An unexpected error occurred'}</div>
-            ${showLoginLink ? `
+            ${
+              showLoginLink
+                ? `
               <div class="detail" style="margin-top: 1rem;">
                 <a href="/login" style="color: #007bff; text-decoration: none;">Login to Utopia</a> first, then try again.
               </div>
-            ` : `
+            `
+                : `
               <div class="detail">Please try again.</div>
-            `}
+            `
+            }
             <div class="detail" style="margin-top: 1rem;">
               <a href="/v1/github/authentication/debug" style="color: #6c757d; text-decoration: none; font-size: 0.8rem;">Debug Info</a> |
               <a href="/v1/github/authentication/reset" style="color: #6c757d; text-decoration: none; font-size: 0.8rem;">Reset Auth</a>
             </div>
-            ${debug ? `
+            ${
+              debug
+                ? `
               <div style="margin-top: 1rem; padding: 1rem; background: #f8f9fa; border-radius: 4px; font-size: 0.7rem; text-align: left;">
                 <strong>Debug Info:</strong><br>
-                Environment variables loaded: ${process.env.GITHUB_OAUTH_CLIENT_ID ? 'Yes' : 'No'}<br>
+                Environment variables loaded: ${
+                  process.env.GITHUB_OAUTH_CLIENT_ID ? 'Yes' : 'No'
+                }<br>
                 Full URL: ${error}<br>
               </div>
-            ` : ''}
-          `}
+            `
+                : ''
+            }
+          `
+          }
         </div>
         <script>
           // Auto-close the window after a short delay

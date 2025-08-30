@@ -16,11 +16,13 @@ async function handleDebug(req: Request) {
 
   const debugInfo = {
     timestamp: new Date().toISOString(),
-    user: user ? {
-      id: user.user_id,
-      email: user.email,
-      name: user.name,
-    } : null,
+    user: user
+      ? {
+          id: user.user_id,
+          email: user.email,
+          name: user.name,
+        }
+      : null,
     environment: {
       GITHUB_OAUTH_CLIENT_ID: ServerEnvironment.GITHUB_OAUTH_CLIENT_ID ? 'SET' : 'MISSING',
       GITHUB_OAUTH_CLIENT_SECRET: ServerEnvironment.GITHUB_OAUTH_CLIENT_SECRET ? 'SET' : 'MISSING',
@@ -37,7 +39,7 @@ async function handleDebug(req: Request) {
       finish: `${url.origin}/v1/github/authentication/finish`,
       status: `${url.origin}/v1/github/authentication/status`,
       reset: `${url.origin}/v1/github/authentication/reset`,
-    }
+    },
   }
 
   const html = `
@@ -133,19 +135,29 @@ async function handleDebug(req: Request) {
           </div>
 
           <h2>Environment Check</h2>
-          <div class="status ${debugInfo.environment.GITHUB_OAUTH_CLIENT_ID === 'SET' ? 'ok' : 'error'}">
+          <div class="status ${
+            debugInfo.environment.GITHUB_OAUTH_CLIENT_ID === 'SET' ? 'ok' : 'error'
+          }">
             GitHub Client ID: ${debugInfo.environment.GITHUB_OAUTH_CLIENT_ID}
           </div>
-          <div class="status ${debugInfo.environment.GITHUB_OAUTH_CLIENT_SECRET === 'SET' ? 'ok' : 'error'}">
+          <div class="status ${
+            debugInfo.environment.GITHUB_OAUTH_CLIENT_SECRET === 'SET' ? 'ok' : 'error'
+          }">
             GitHub Client Secret: ${debugInfo.environment.GITHUB_OAUTH_CLIENT_SECRET}
           </div>
-          <div class="status ${debugInfo.environment.GITHUB_OAUTH_REDIRECT_URL !== 'NOT SET' ? 'ok' : 'error'}">
+          <div class="status ${
+            debugInfo.environment.GITHUB_OAUTH_REDIRECT_URL !== 'NOT SET' ? 'ok' : 'error'
+          }">
             Redirect URL: ${debugInfo.environment.GITHUB_OAUTH_REDIRECT_URL}
           </div>
 
           <h2>User Status</h2>
           <div class="status ${debugInfo.user ? 'ok' : 'warning'}">
-            ${debugInfo.user ? `Logged in as: ${debugInfo.user.email} (${debugInfo.user.id})` : 'Not logged in - GitHub auth requires user session'}
+            ${
+              debugInfo.user
+                ? `Logged in as: ${debugInfo.user.email} (${debugInfo.user.id})`
+                : 'Not logged in - GitHub auth requires user session'
+            }
           </div>
 
           <h2>OAuth Flow URLs</h2>
@@ -174,7 +186,9 @@ async function handleDebug(req: Request) {
             <h3 style="color: #FF9800;">3. Environment setup</h3>
             <ul>
               <li>Create OAuth app at: <a href="https://github.com/settings/applications/new" target="_blank">GitHub Developer Settings</a></li>
-              <li>Set Authorization callback URL to: <code>${debugInfo.expectedFlow.finish}</code></li>
+              <li>Set Authorization callback URL to: <code>${
+                debugInfo.expectedFlow.finish
+              }</code></li>
               <li>Copy Client ID and Client Secret to your .envrc file</li>
             </ul>
           </div>

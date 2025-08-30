@@ -17,13 +17,17 @@ async function getGithubUser(req: Request) {
 
   // Get their GitHub authentication
   const githubAuth = await getGithubAuthentication({ userId: user.user_id })
-  ensure(githubAuth, 'GitHub authentication not found. Please connect your GitHub account first.', Status.UNAUTHORIZED)
+  ensure(
+    githubAuth,
+    'GitHub authentication not found. Please connect your GitHub account first.',
+    Status.UNAUTHORIZED,
+  )
 
   // Fetch user data from GitHub API
   const response = await fetch('https://api.github.com/user', {
     headers: {
-      'Authorization': `Bearer ${githubAuth.access_token}`,
-      'Accept': 'application/vnd.github.v3+json',
+      Authorization: `Bearer ${githubAuth.access_token}`,
+      Accept: 'application/vnd.github.v3+json',
       'User-Agent': 'Utopia-App',
     },
   })
@@ -31,12 +35,14 @@ async function getGithubUser(req: Request) {
   if (!response.ok) {
     const errorText = await response.text()
     const errorMessage = `Failed to fetch GitHub user info: ${response.status} ${response.statusText} - ${errorText}`
-    
+
     // Check if it's an authentication issue
     if (response.status === 401) {
-      throw new Error('GitHub access token is invalid or expired. Please reconnect your GitHub account.')
+      throw new Error(
+        'GitHub access token is invalid or expired. Please reconnect your GitHub account.',
+      )
     }
-    
+
     throw new Error(errorMessage)
   }
 

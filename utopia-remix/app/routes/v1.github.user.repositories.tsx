@@ -17,7 +17,11 @@ async function getGithubUserRepositories(req: Request) {
 
   // Get their GitHub authentication
   const githubAuth = await getGithubAuthentication({ userId: user.user_id })
-  ensure(githubAuth, 'GitHub authentication not found. Please connect your GitHub account first.', Status.UNAUTHORIZED)
+  ensure(
+    githubAuth,
+    'GitHub authentication not found. Please connect your GitHub account first.',
+    Status.UNAUTHORIZED,
+  )
 
   // Parse query parameters
   const url = new URL(req.url)
@@ -31,8 +35,8 @@ async function getGithubUserRepositories(req: Request) {
 
   const response = await fetch(apiUrl, {
     headers: {
-      'Authorization': `Bearer ${githubAuth.access_token}`,
-      'Accept': 'application/vnd.github.v3+json',
+      Authorization: `Bearer ${githubAuth.access_token}`,
+      Accept: 'application/vnd.github.v3+json',
       'User-Agent': 'Utopia-App',
     },
   })
