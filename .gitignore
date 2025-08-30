@@ -141,3 +141,4 @@ custom-shell.nix
 
 # Benchmark results.
 editor/benchmark
+.env
