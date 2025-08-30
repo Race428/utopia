@@ -8,6 +8,8 @@ import * as path from 'node:path'
 import * as url from 'node:url'
 import sourceMapSupport from 'source-map-support'
 
+// Load environment variables from .env file
+
 // To make sure everything keeps working and the server doesn't crash, if
 // there are any uncaught errors, log them out gracefully
 process.on('uncaughtException', (err) => {

@@ -48,10 +48,3 @@ export async function proxy(req: Request, options?: { rawOutput?: boolean; path?
   }
   return proxiedResponse(response)
 }
-
-function setCopyHeader(originalHeaders: Headers, targetHeaders: Headers, key: string) {
-  const value = originalHeaders.get(key)
-  if (value != null) {
-    targetHeaders.set(key, value)
-  }
-}

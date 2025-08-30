@@ -32,6 +32,7 @@ export const ServerEnvironment = {
   FGA_API_AUDIENCE: mustEnvOrLocalFallback('FGA_API_AUDIENCE', ''),
   // Github OAuth credentials
   GITHUB_OAUTH_CLIENT_ID: mustEnvOrLocalFallback('GITHUB_OAUTH_CLIENT_ID', ''),
+  GITHUB_OAUTH_CLIENT_SECRET: mustEnvOrLocalFallback('GITHUB_OAUTH_CLIENT_SECRET', ''),
   GITHUB_OAUTH_REDIRECT_URL: mustEnvOrLocalFallback('GITHUB_OAUTH_REDIRECT_URL', ''),
   // S3 Configuration
   AWS_S3_BUCKET: mustEnvOrLocalFallback('AWS_S3_BUCKET', ''),
